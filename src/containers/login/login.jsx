@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import { Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { connect } from 'react-redux'
 import './css/login.less'
 import qr from './images/QR_code_new3.png'
-export default class Login extends Component {
+class LoginUI extends Component {
     onFinish = (values) => {
-        console.log(values);
+        console.log('Received values of form: ', values);
         this.props.history.push('/admin')
     }
     render() {
@@ -28,6 +29,18 @@ export default class Login extends Component {
                                     required: true,
                                     message: '请输入用户名!',
                                 },
+                                {
+                                    max: 12,
+                                    message: '用户名必须不大于12位',
+                                },
+                                {
+                                    min: 4,
+                                    message: '用户名必须不小于4位',
+                                },
+                                {
+                                    pattern: /^\w+$/,
+                                    message: '用户名必须由字母数字下划线组成',
+                                },
                             ]}
                         >
                             <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="用户名" />
@@ -36,8 +49,20 @@ export default class Login extends Component {
                             name="password"
                             rules={[
                                 {
-                                    required: true,
-                                    message: '请输入密码!',
+                                    validator: (_, value) => {
+                                        if (!value) {
+                                            return Promise.reject('请输入密码!')
+                                        } else if (value.length > 12) {
+                                            return Promise.reject('密码必须不大于12位')
+                                        } else if (value.length < 4) {
+                                            return Promise.reject('密码必须不小于4位')
+                                        } else if (!(/^\w+$/).test(value)) {
+                                            return Promise.reject('密码必须由字母数字组成')
+
+                                        } else {
+                                            return Promise.resolve()
+                                        }
+                                    }
                                 },
                             ]}
                         >
@@ -63,3 +88,10 @@ export default class Login extends Component {
         )
     }
 }
+export default connect(
+    state => {
+
+    }, {
+
+}
+)(LoginUI)
